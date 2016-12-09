@@ -9,7 +9,8 @@ module Sapwood
 
     def method_missing(method, *args, &block)
       if @attributes.keys.include?(method.to_sym)
-        return @attributes[method.to_sym]
+        value = @attributes[method.to_sym]
+        return value.is_a?(Hash) ? Hashie::Mash.new(value) : value
       end
       super
     end
