@@ -25,5 +25,6 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency "rake"
   # spec.add_development_dependency "rspec"
 
-  spec.add_dependency "httparty", ">= 0.14.0"
+  spec.add_dependency 'hashie', '>= 3.4.0'
+  spec.add_dependency 'rest-client', '>= 2.0.0'
 end
