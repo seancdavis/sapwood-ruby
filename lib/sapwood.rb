@@ -4,6 +4,8 @@ require 'json'
 
 require 'sapwood/version'
 require 'sapwood/client'
+require 'sapwood/client/elements'
+require 'sapwood/client/element'
 require 'sapwood/element'
 
 module Sapwood

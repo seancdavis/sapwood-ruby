@@ -7,45 +7,53 @@ module Sapwood
       options.each { |k,v| send("#{k.to_s}=", v) }
     end
 
-    def get(url, options = {})
-      request = RestClient.get(url, :params => base_options.merge(options))
-      request.body
+    def element
+      Sapwood::Client::Element.new(current_options)
     end
 
-    def elements(options = {})
-      elements = json_to_hash(get(api_url('elements'), options))
-      elements.map { |attrs| Sapwood::Element.new(attrs) }
+    def elements
+      Sapwood::Client::Elements.new(current_options)
     end
 
-      private
+    private
 
-        def base_url
-          "http://#{@domain}/api/v1"
-        end
+      def current_options
+        {
+          :domain => domain,
+          :property_id => property_id,
+          :api_key => api_key
+        }
+      end
 
-        def api_url(segment)
-          safe_url("#{base_url}/properties/#{@property_id}/#{segment}.json")
-        end
+      def get(url, options = {})
+        request = RestClient.get(url, :params => base_options.merge(options))
+        request.body
+      end
 
-        def base_options
-          { :api_key => @api_key }
-        end
+      def post(url, payload)
+        request = RestClient.post(url, base_options.merge(payload))
+        request.body
+      end
 
-        def options_to_params(options)
-          return nil if options.blank?
-          params = '?'
-          base_options.merge(options).each { |k,v| params += "#{k}=#{v}&" }
-          params.chomp('&')
-        end
+      def base_url
+        "http://#{@domain}/api/v1"
+      end
 
-        def safe_url(url)
-          URI.parse(URI.encode(url)).to_s
-        end
+      def api_url(segment)
+        safe_url("#{base_url}/properties/#{@property_id}/#{segment}.json")
+      end
 
-        def json_to_hash(json)
-          JSON.parse(json)
-        end
+      def base_options
+        { :api_key => @api_key }
+      end
+
+      def safe_url(url)
+        URI.parse(URI.encode(url)).to_s
+      end
+
+      def json_to_hash(json)
+        JSON.parse(json)
+      end
 
   end
-
 end
