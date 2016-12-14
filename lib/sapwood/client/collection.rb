@@ -1,5 +1,5 @@
 module Sapwood
-  class Client::Elements < Client
+  class Client::Collection < Client
 
     def read(options = {})
       url = api_url('elements')

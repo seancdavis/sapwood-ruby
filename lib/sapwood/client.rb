@@ -11,8 +11,8 @@ module Sapwood
       Sapwood::Client::Element.new(current_options)
     end
 
-    def elements
-      Sapwood::Client::Elements.new(current_options)
+    def collection
+      Sapwood::Client::Collection.new(current_options)
     end
 
     private

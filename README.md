@@ -63,15 +63,44 @@ sapwood.api_key = 'your_property_api_key'
 sapwood.property_id = 'your_property_id'
 ```
 
-## Elements
+## Collection
 
-Currently the only method supported by the client is to return an array of
-elements (as `Sapwood::Element` objects). Supposing you have an instance of a Sapwood client as `sapwood`, here's the simplest example:
+A collection is returned to you as an array of `Sapwood::Element` objects.
+Supposing you have an instance of a Sapwood client as `sapwood`, here's the
+simplest example:
 
 ```ruby
 # set `sapwood` to a new Sapwood::Client ...
 
-sapwood.elements
+sapwood.collection.read
+```
+
+## Element
+
+There are two actions with a single element: create and read.
+
+### Create
+
+To create an element, you will want to include your element's attributes as a
+hash. And be sure that you have the `secret` and `template` as options, or the
+element will not be created. Here's an example:
+
+```ruby
+# set `sapwood` to a new Sapwood::Client ...
+
+sapwood.element.create(:template => 'your_template', :secret => 'your_secret',
+                       :another_attr => 'another_attr ...')
+```
+
+### Read
+
+You can also retrieve (read) a single element. All you need here is the `id` of
+that element.
+
+```ruby
+# set `sapwood` to a new Sapwood::Client ...
+
+sapwood.element.read('element_id')
 ```
 
 ### Sapwood::Element
