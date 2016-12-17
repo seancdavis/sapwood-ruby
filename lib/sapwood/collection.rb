@@ -11,5 +11,9 @@ module Sapwood
       @elements
     end
 
+    def method_missing(method, *args, &block)
+      to_a.send(method.to_s)
+    end
+
   end
 end
