@@ -4,7 +4,7 @@ module Sapwood
     def read(options = {})
       url = api_url('elements')
       response = get(url, options)
-      json_to_hash(response).map { |attrs| Sapwood::Element.new(attrs) }
+      Sapwood::Collection.new(json_to_hash(response))
     end
 
   end

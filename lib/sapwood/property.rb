@@ -1,5 +1,5 @@
 module Sapwood
-  class Element
+  class Property
 
     attr_accessor :attributes
 
@@ -8,12 +8,13 @@ module Sapwood
       @attributes = attrs.symbolize_keys
     end
 
-    def json
-      @attributes.to_json
+    def templates
+      return [] if templates_raw.blank?
+      JSON.parse(templates_raw).map { |t| Hashie::Mash.new(t) }
     end
 
-    def to_json
-      json
+    def json
+      @attributes.to_json
     end
 
     def to_s

@@ -7,6 +7,10 @@ module Sapwood
       options.each { |k,v| send("#{k.to_s}=", v) }
     end
 
+    def property
+      Sapwood::Client::Property.new(current_options)
+    end
+
     def element
       Sapwood::Client::Element.new(current_options)
     end
