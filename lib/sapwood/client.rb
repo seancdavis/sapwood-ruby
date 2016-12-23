@@ -1,10 +1,11 @@
 module Sapwood
   class Client
 
-    attr_accessor :domain, :property_id, :api_key
+    attr_accessor :domain, :property_id, :api_key, :ssl
 
     def initialize(options = {})
       options.each { |k,v| send("#{k.to_s}=", v) }
+      ssl = false if ssl.nil?
     end
 
     def property
@@ -25,7 +26,8 @@ module Sapwood
         {
           :domain => domain,
           :property_id => property_id,
-          :api_key => api_key
+          :api_key => api_key,
+          :ssl => ssl
         }
       end
 
@@ -40,7 +42,7 @@ module Sapwood
       end
 
       def base_url
-        "http://#{@domain}/api/v1"
+        "http#{'s' if ssl == true}://#{@domain}/api/v1"
       end
 
       def api_url(segment)
