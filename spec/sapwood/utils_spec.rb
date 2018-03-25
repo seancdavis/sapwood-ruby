@@ -36,4 +36,10 @@ RSpec.describe Sapwood::Utils do
     end
   end
 
+  describe '#master_key_header' do
+    it 'returns a hash given a master key' do
+      expect(utils.master_key_header('abc123')).to eq({ 'Master-Key' => 'abc123' })
+    end
+  end
+
 end

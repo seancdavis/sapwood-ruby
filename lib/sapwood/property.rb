@@ -13,44 +13,41 @@ module Sapwood
       self.name = attributes[:name]
     end
 
-    # attr_accessor :attributes
+    def create_key(attributes = {})
+      request_url = Sapwood::Utils.request_url('keys', api_url)
+      response = RestClient.post(request_url, attributes, master_key_header)
+      body = JSON.parse(response.body).deep_symbolize_keys
+      Sapwood::Key.new(body)
+    end
 
-    # def initialize(attrs = {})
-    #   attrs = JSON.parse(attrs) if attrs.is_a?(String)
-    #   @attributes = attrs.symbolize_keys
-    # end
+    def get_keys
+      request_url = Sapwood::Utils.request_url('keys', api_url)
+      response = RestClient.get(request_url, master_key_header)
+      body = JSON.parse(response.body).map do |attrs|
+        Sapwood::Key.new(attrs.deep_symbolize_keys)
+      end
+    end
 
-    # def templates
-    #   return [] if templates_raw.blank?
-    #   JSON.parse(templates_raw).map { |t| Hashie::Mash.new(t) }
-    # end
+    def get_key(options = {})
+      raise ArgumentError.new("Missing required option: id") if options[:id].blank?
+      request_url = Sapwood::Utils.request_url("keys/#{options[:id]}", api_url)
+      response = RestClient.get(request_url, master_key_header)
+      body = JSON.parse(response.body).deep_symbolize_keys
+      Sapwood::Key.new(body)
+    end
 
-    # def json
-    #   @attributes.to_json
-    # end
+    def delete_key(options = {})
+      raise ArgumentError.new("Missing required option: id") if options[:id].blank?
+      request_url = Sapwood::Utils.request_url("keys/#{options[:id]}", api_url)
+      response = RestClient.delete(request_url, master_key_header)
+      true
+    end
 
-    # def to_s
-    #   json
-    # end
+    private
 
-    # def respond_to?(method, include_all = false)
-    #   return true if @attributes.include?(method.to_sym)
-    #   super
-    # end
-
-    # def method_missing(method, *args, &block)
-    #   if @attributes.keys.include?(method.to_sym)
-    #     value = @attributes[method.to_sym]
-    #     if value.is_a?(Array)
-    #       return value.map { |v| Sapwood::Element.new(v) }
-    #     elsif value.is_a?(Hash)
-    #       return Hashie::Mash.new(value)
-    #     else
-    #       return value
-    #     end
-    #   end
-    #   super
-    # end
+    def master_key_header
+      Sapwood::Utils.master_key_header(master_key)
+    end
 
   end
 end
