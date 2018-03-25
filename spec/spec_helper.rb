@@ -2,7 +2,7 @@ require 'bundler/setup'
 require 'sapwood'
 require 'faker'
 
-# require_relative 'support/example_models'
+require 'dotenv/load'
 
 RSpec.configure do |config|
   # Enable flags like --only-failures and --next-failure
