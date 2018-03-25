@@ -40,4 +40,49 @@ RSpec.describe Sapwood::User do
     end
   end
 
+  # ---------------------------------------- | Get Properties
+
+  describe '#get_properties' do
+    it 'returns an array of property objects' do
+      properties = user.get_properties
+      expect(properties.class).to eq(Array)
+
+      property = properties.first
+      expect(property.class).to eq(Sapwood::Property)
+      expect(property.api_url).to eq(ENV['SAPWOOD_API_URL'])
+      expect(property.master_key.starts_with?("p#{property.id}_")).to eq(true)
+      expect(property.id).to_not eq(nil)
+      expect(property.name.present?).to eq(true)
+    end
+    it 'requires a valid token' do
+      user.token = 'abc123'
+      expect { user.get_properties }.to raise_error(RestClient::Unauthorized)
+    end
+  end
+
+  # ---------------------------------------- | Get Property
+
+  describe '#get_property' do
+    let(:properties) { user.get_properties }
+    it 'returns an array of property objects' do
+      property = user.get_property(id: properties.first.id)
+      expect(property.class).to eq(Sapwood::Property)
+      expect(property.api_url).to eq(ENV['SAPWOOD_API_URL'])
+      expect(property.master_key.starts_with?("p#{property.id}_")).to eq(true)
+      expect(property.id).to_not eq(nil)
+      expect(property.name.present?).to eq(true)
+    end
+    it 'requires a valid token' do
+      user.token = 'abc123'
+      expect { user.get_property(id: properties.first.id) }
+        .to raise_error(RestClient::Unauthorized)
+    end
+    it 'requires an id' do
+      expect { user.get_property }.to raise_error(ArgumentError)
+    end
+    it 'requires a valid id' do
+      expect { user.get_property(id: 0) }.to raise_error(RestClient::NotFound)
+    end
+  end
+
 end
