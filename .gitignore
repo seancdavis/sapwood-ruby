@@ -9,3 +9,5 @@
 /tmp/
 
 .env
+
+.rspec_status
