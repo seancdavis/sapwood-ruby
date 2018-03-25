@@ -9,5 +9,9 @@ module Sapwood
       "#{api_url(url).chomp('/')}/#{path}"
     end
 
+    def self.token_header(token)
+      { 'Authorization' => token }
+    end
+
   end
 end

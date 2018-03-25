@@ -30,4 +30,10 @@ RSpec.describe Sapwood::Utils do
     end
   end
 
+  describe '#token_header' do
+    it 'returns a hash given a token' do
+      expect(utils.token_header('abc123')).to eq({ 'Authorization' => 'abc123' })
+    end
+  end
+
 end
