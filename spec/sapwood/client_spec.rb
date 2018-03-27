@@ -55,4 +55,14 @@ RSpec.describe Sapwood::Client do
     end
   end
 
+  # ---------------------------------------- | Get Items
+
+  # describe '#get_items' do
+  # end
+
+  # ---------------------------------------- | Get Item
+
+  # describe '#get_item' do
+  # end
+
 end

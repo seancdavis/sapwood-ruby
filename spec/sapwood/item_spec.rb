@@ -73,4 +73,55 @@ RSpec.describe Sapwood::Item do
     end
   end
 
+  # ---------------------------------------- | Update / Save / Delete
+
+  context '[db transactions]' do
+    let(:user) { @user }
+    let(:property) { @property }
+    let(:key) { @key }
+    let(:item) { @item }
+    let(:client) { @client }
+
+    before(:all) do
+      @user = Sapwood::Authentication.get_token(
+        api_url: ENV['SAPWOOD_API_URL'],
+        email: ENV['SAPWOOD_API_EMAIL'],
+        password: ENV['SAPWOOD_API_PASSWORD']
+      )
+      @property = @user.create_property(name: Faker::Book.name)
+      @key = @property.create_key
+      @client = Sapwood::Client.new(api_url: ENV['SAPWOOD_API_URL'], api_key: @key.value)
+      @item = @client.create_item(name: Faker::Name.name, age: rand(10..100))
+    end
+
+    describe 'item.update' do
+
+      it 'will update an existing item replacing an attribute' do
+        item.update(name: (name = Faker::Name.name))
+        expect(item.name).to eq(name)
+      end
+      it 'will add a new attribute without deleting others' do
+        old_name = item.name
+        old_age = item.age
+        item.update(title: (title = Faker::Book.title))
+        expect(item.title).to eq(title)
+        expect(item.name).to eq(old_name)
+        expect(item.name.blank?).to eq(false)
+        expect(item.age).to eq(old_age)
+        expect(item.age.blank?).to eq(false)
+      end
+    end
+
+    describe 'item.save' do
+      it 'can update an item directly by running the save method after adjusting attributes' do
+        old_age = item.age
+        item.name = (new_name = Faker::Name.name)
+        item.save
+        expect(item.name).to eq(new_name)
+        expect(item.age).to eq(old_age)
+        expect(item.age.blank?).to eq(false)
+      end
+    end
+  end
+
 end

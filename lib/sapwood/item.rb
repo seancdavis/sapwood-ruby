@@ -21,7 +21,12 @@ module Sapwood
 
     def save
       return create! if id.blank?
-      raise 'NOT NEW'
+      update!
+    end
+
+    def update(attrs = {})
+      assign_attributes(attrs)
+      update!
     end
 
     def method_missing(method_name, *args, &block)
@@ -68,8 +73,16 @@ module Sapwood
     end
 
     def create!
-      request_url = Sapwood::Utils.request_url('items', api_url)
-      response = RestClient.post(request_url, post_data, post_data_header)
+      request!(:post, Sapwood::Utils.request_url('items', api_url))
+    end
+
+    def update!
+      raise "Can not update without an id." if id.blank?
+      request!(:patch, Sapwood::Utils.request_url("items/#{id}", api_url))
+    end
+
+    def request!(type, request_url)
+      response = RestClient.send(type, request_url, post_data, post_data_header)
       Sapwood::Item.new(@options, JSON.parse(response.body))
     end
 
