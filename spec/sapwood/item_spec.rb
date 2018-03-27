@@ -123,8 +123,14 @@ RSpec.describe Sapwood::Item do
       end
     end
 
-    describe 'item.delete' do
-      # TODO: Delete action
+    describe 'item.destroy' do
+      it 'will delete the item' do
+        id = item.id
+        res = item.destroy
+
+        expect(res).to eq(true)
+        expect { client.get_item(id: id) }.to raise_error(RestClient::NotFound)
+      end
     end
   end
 

@@ -98,8 +98,16 @@ RSpec.describe Sapwood::Client do
   # ---------------------------------------- | Get Item
 
   describe '#get_item' do
-    it 'will retrieve an item directly with its id'
-    it 'requires a valid id'
+    it 'will retrieve an item directly with its id' do
+      new_item = client.create_item(name: Faker::Name.name)
+      item = client.get_item(id: new_item.id)
+      expect(item.id).to eq(new_item.id)
+      expect(item.name).to eq(new_item.name)
+      expect(item.class).to eq(Sapwood::Item)
+    end
+    it 'requires a valid id' do
+      expect { client.get_item(id: 0) }.to raise_error(RestClient::NotFound)
+    end
   end
 
 end

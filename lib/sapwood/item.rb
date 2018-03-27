@@ -29,6 +29,10 @@ module Sapwood
       update!
     end
 
+    def destroy
+      destroy!
+    end
+
     def method_missing(method_name, *args, &block)
       return super unless attributes.keys.include?(method_name.to_sym)
       attributes[method_name.to_sym]
@@ -79,6 +83,12 @@ module Sapwood
     def update!
       raise "Can not update without an id." if id.blank?
       request!(:patch, Sapwood::Utils.request_url("items/#{id}", api_url))
+    end
+
+    def destroy!
+      raise "Can not destroy without an id." if id.blank?
+      RestClient.delete(Sapwood::Utils.request_url("items/#{id}", api_url), api_key_header)
+      true
     end
 
     def request!(type, request_url)

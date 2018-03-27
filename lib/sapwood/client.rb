@@ -22,6 +22,14 @@ module Sapwood
       end
     end
 
+    def get_item(params = {})
+      raise ArgumentError.new("Missing required option: id") if params[:id].blank?
+      request_url = Sapwood::Utils.request_url("items/#{params[:id]}", api_url)
+      response = RestClient.get(request_url, api_key_header)
+      body = JSON.parse(response.body).deep_symbolize_keys
+      Sapwood::Item.new(options, body)
+    end
+
     private
 
     def api_key_header
