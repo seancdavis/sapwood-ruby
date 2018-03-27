@@ -5,8 +5,9 @@ module Sapwood
       api_url || 'https://api.sapwood.org'
     end
 
-    def self.request_url(path, url = nil)
-      "#{api_url(url).chomp('/')}/#{path}"
+    def self.request_url(path, url = nil, params = nil)
+      params = '?' + params.map { |k,v| "#{k}=#{v}" }.join('&') if params
+      "#{api_url(url).chomp('/')}/#{path}#{params}"
     end
 
     def self.token_header(token)

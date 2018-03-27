@@ -28,6 +28,10 @@ RSpec.describe Sapwood::Utils do
     it 'will remove trailing slash in api url' do
       expect(utils.request_url('items', "#{dev_url}/")).to eq("#{dev_url}/items")
     end
+    it 'adds query parameters, but requests that api_url also be passed' do
+      params = { a: 1, b: 2 }
+      expect(utils.request_url('items', dev_url, params)).to eq("#{dev_url}/items?a=1&b=2")
+    end
   end
 
   describe '#token_header' do
