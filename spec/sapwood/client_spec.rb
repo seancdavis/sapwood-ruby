@@ -57,12 +57,14 @@ RSpec.describe Sapwood::Client do
 
   # ---------------------------------------- | Get Items
 
-  # describe '#get_items' do
-  # end
+  describe '#get_items' do
+    # TODO: Querying with filters, ordering
+  end
 
   # ---------------------------------------- | Get Item
 
-  # describe '#get_item' do
-  # end
+  describe '#get_item' do
+    # TOOD: Query item directly
+  end
 
 end

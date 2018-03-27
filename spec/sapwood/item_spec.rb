@@ -122,6 +122,10 @@ RSpec.describe Sapwood::Item do
         expect(item.age.blank?).to eq(false)
       end
     end
+
+    describe 'item.delete' do
+      # TODO: Delete action
+    end
   end
 
 end
