@@ -1,67 +1,18 @@
 module Sapwood
   class Client
 
-    # attr_accessor :api_url,
+    attr_accessor :api_url, :api_key
 
-    # attr_accessor :domain, :api_key
+    def initialize(options = {})
+      options.symbolize_keys!
+      self.api_url = Sapwood::Utils.api_url(options[:api_url])
+      self.api_key = options[:api_key]
+      raise ArgumentError.new("Missing required option: api_key") if options[:api_key].blank?
+    end
 
-    # def initialize(options = {})
-    #   options.each { |k,v| send("#{k.to_s}=", v) }
-    #   ssl = false if ssl.nil?
-    # end
-
-    # def property
-    #   Sapwood::Client::Property.new(current_options)
-    # end
-
-    # def element
-    #   Sapwood::Client::Element.new(current_options)
-    # end
-
-    # def collection
-    #   Sapwood::Client::Collection.new(current_options)
-    # end
-
-    # private
-
-    #   def current_options
-    #     {
-    #       :domain => domain,
-    #       :property_id => property_id,
-    #       :api_key => api_key,
-    #       :ssl => ssl
-    #     }
-    #   end
-
-    #   def get(url, options = {})
-    #     request = RestClient.get(url, :params => base_options.merge(options))
-    #     request.body
-    #   end
-
-    #   def post(url, payload)
-    #     request = RestClient.post(url, base_options.merge(payload))
-    #     request.body
-    #   end
-
-    #   def base_url
-    #     "http#{'s' if ssl == true}://#{@domain}/api/v1"
-    #   end
-
-    #   def api_url(segment)
-    #     safe_url("#{base_url}/properties/#{@property_id}/#{segment}.json")
-    #   end
-
-    #   def base_options
-    #     { :api_key => @api_key }
-    #   end
-
-    #   def safe_url(url)
-    #     URI.parse(URI.encode(url)).to_s
-    #   end
-
-    #   def json_to_hash(json)
-    #     JSON.parse(json)
-    #   end
+    def create_item(attributes = {})
+      Sapwood::Item.new({ api_url: api_url, api_key: api_key }, attributes).save
+    end
 
   end
 end

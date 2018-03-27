@@ -17,5 +17,9 @@ module Sapwood
       { 'Master-Key' => token }
     end
 
+    def self.api_key_header(token)
+      { 'API-Key' => token }
+    end
+
   end
 end

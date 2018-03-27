@@ -12,14 +12,8 @@ require 'sapwood/authentication'
 require 'sapwood/user'
 require 'sapwood/property'
 require 'sapwood/key'
-
-# require 'sapwood/client'
-# require 'sapwood/client/collection'
-# require 'sapwood/client/element'
-# require 'sapwood/client/property'
-# require 'sapwood/property'
-# require 'sapwood/element'
-# require 'sapwood/collection'
+require 'sapwood/client'
+require 'sapwood/item'
 
 module Sapwood
 end
