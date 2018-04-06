@@ -8,12 +8,12 @@ require 'active_support/core_ext/string'
 
 require 'sapwood/version'
 require 'sapwood/configuration'
-# require 'sapwood/utils'
+require 'sapwood/utils'
+require 'sapwood/client'
 # require 'sapwood/authentication'
 # require 'sapwood/user'
 # require 'sapwood/property'
 # require 'sapwood/key'
-# require 'sapwood/client'
 # require 'sapwood/item'
 
 module Sapwood
