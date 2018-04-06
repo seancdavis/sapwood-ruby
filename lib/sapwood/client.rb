@@ -4,7 +4,6 @@ module Sapwood
     def self.authenticate(email, password)
       request_url = Sapwood::Utils.request_url('authenticate')
       response = RestClient.post(request_url, { email: email, password: password })
-      Sapwood.configuration.auth_method = :token
       Sapwood.configuration.token = JSON.parse(response.body)['token']
     end
 
