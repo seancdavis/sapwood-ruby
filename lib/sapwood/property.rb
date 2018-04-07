@@ -1,24 +1,80 @@
 module Sapwood
-  class Property < Request
+  class Property
 
-    def self.read(options = {})
-      request_path = options[:id].present? ? "properties/#{options[:id]}" : 'properties'
-      request_url = Sapwood::Utils.request_url(request_path)
-      response = RestClient.get(request_url, headers: Sapwood::Utils.token_header)
-      JSON.parse(response.body)
+    class << self
+      def all
+        request_url = Sapwood::Utils.request_url('properties')
+        response = RestClient.get(request_url, Sapwood::Utils.get_header)
+        JSON.parse(response.body).map { |attrs| Property.new(attrs) }
+      end
+
+      def where(attributes = {})
+        properties = all
+        attributes.each { |k, v| properties.select! { |p| p.send(k) == v } }
+        properties
+      end
+
+      def find_by(attributes = {})
+        where(attributes).first
+      end
+
+      def create(attributes = {})
+        Sapwood::Property.new(attributes).save
+      end
     end
 
-    # attr_accessor :api_url, :master_key, :name, :id
+    attr_reader :attributes, :created_at, :id, :name, :updated_at
 
-    # def initialize(options = {}, attributes = {})
-    #   options.symbolize_keys!
-    #   self.api_url = Sapwood::Utils.api_url(options[:api_url])
-    #   self.master_key = options[:master_key]
+    def initialize(attributes = {})
+      @attributes = attributes.deep_symbolize_keys
+      process_attributes!
+    end
 
-    #   attributes.symbolize_keys!
-    #   self.id = attributes[:id]
-    #   self.name = attributes[:name]
-    # end
+    def save
+      return create! if id.blank?
+      update!
+    end
+
+    def assign_attributes(attrs)
+      attrs.deep_symbolize_keys.each { |name, value| @attributes[name] = value }
+      process_attributes!
+    end
+
+    def name=(value)
+      assign_attributes(name: value)
+    end
+
+    private
+
+    def process_attributes!
+      attributes.each do |name, value|
+        if name.to_s.ends_with?('_at') && value.present? && value.is_a?(Integer)
+          @attributes[name.to_sym] = Time.at(value)
+        end
+        instance_variable_set("@#{name}", @attributes[name.to_sym])
+      end
+    end
+
+    def post_data
+      attributes.slice(:name)
+    end
+
+    def create!
+      post('properties')
+    end
+
+    def update!
+      raise ArgumentError.new("Can not update property without ID") if id.blank?
+      post("properties/#{id}")
+    end
+
+    def post(request_path)
+      request_url = Sapwood::Utils.request_url(request_path)
+      response = RestClient.post(request_url, post_data, Sapwood::Utils.post_header)
+      Sapwood::Property.new(JSON.parse(response.body))
+    end
+
+    # ---------------------------------------- | ...
 
     # def create_key(attributes = {})
     #   request_url = Sapwood::Utils.request_url('keys', api_url)
