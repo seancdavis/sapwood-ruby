@@ -2,10 +2,6 @@ module Sapwood
   class Utils
 
     class  << self
-      # def api_url(api_url = nil)
-      #   api_url || 'https://api.sapwood.org'
-      # end
-
       def request_url(path, in_property = false, params = nil)
         params = '?' + params.map { |k,v| "#{k}=#{v}" }.join('&') if params
         prefix = in_property ? "properties/#{Sapwood.configuration.property_id}/" : ''
