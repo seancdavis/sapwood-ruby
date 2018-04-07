@@ -5,9 +5,19 @@ module Sapwood
 
     class << self
       def all
-        request_url = Utils.request_url('items', true)
+        query
+      end
+
+      def query(filters = {})
+        request_url = Utils.request_url('items', true, filters)
         response = RestClient.get(request_url, Utils.auth_header)
         JSON.parse(response.body).map { |attrs| Item.new(attrs) }
+      end
+
+      def find(id)
+        request_url = Utils.request_url("items/#{id}", true)
+        response = RestClient.get(request_url, Utils.auth_header)
+        Item.new(JSON.parse(response.body))
       end
 
       def create(attributes = {})
