@@ -13,7 +13,7 @@ require 'sapwood/configuration'
 require 'sapwood/authentication'
 require 'sapwood/property'
 require 'sapwood/key'
-# require 'sapwood/item'
+require 'sapwood/item'
 
 module Sapwood
 end
