@@ -6,9 +6,13 @@ module Sapwood
       #   api_url || 'https://api.sapwood.org'
       # end
 
-      def request_url(path, params = nil)
+      def request_url(path, in_property = false, params = nil)
         params = '?' + params.map { |k,v| "#{k}=#{v}" }.join('&') if params
-        "#{Sapwood.configuration.api_url.chomp('/')}/#{path}#{params}"
+        prefix = in_property ? "properties/#{Sapwood.configuration.property_id}/" : ''
+        if prefix.present? && Sapwood.configuration.property_id.blank?
+          raise ArgumentError.new("property_id not set")
+        end
+        "#{Sapwood.configuration.api_url.chomp('/')}/#{prefix}#{path}#{params}"
       end
 
       def get_header

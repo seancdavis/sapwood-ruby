@@ -14,7 +14,7 @@ require 'sapwood/authentication'
 # require 'sapwood/request'
 require 'sapwood/property'
 # require 'sapwood/user'
-# require 'sapwood/key'
+require 'sapwood/key'
 # require 'sapwood/item'
 
 module Sapwood
