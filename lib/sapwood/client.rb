@@ -1,12 +1,6 @@
 module Sapwood
   class Client
 
-    def self.authenticate(email, password)
-      request_url = Sapwood::Utils.request_url('authenticate')
-      response = RestClient.post(request_url, { email: email, password: password })
-      Sapwood.configuration.token = JSON.parse(response.body)['token']
-    end
-
     # TODO: Consider a configuration idiom -- https://robots.thoughtbot.com/mygem-configure-block
     #
     # This client would then be unnecessary. Instead ... ??? WHAT AM I DOING?

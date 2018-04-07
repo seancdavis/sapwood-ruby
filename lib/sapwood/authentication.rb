@@ -1,13 +1,9 @@
 module Sapwood
-  class Authentication
-
-    def self.get_token(options = {})
-      api_url = Sapwood::Utils.api_url(options[:api_url])
-      request_url = Sapwood::Utils.request_url('authenticate', options[:api_url])
-      params = { email: options[:email], password: options[:password] }
-      response = RestClient.post(request_url, params)
-      Sapwood::Client.new(JSON.parse(response.body).merge(api_url: api_url))
+  class << self
+    def authenticate(email, password)
+      request_url = Sapwood::Utils.request_url('authenticate')
+      response = RestClient.post(request_url, { email: email, password: password })
+      Sapwood.configuration.token = JSON.parse(response.body)['token']
     end
-
   end
 end
