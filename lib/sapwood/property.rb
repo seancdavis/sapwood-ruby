@@ -3,8 +3,8 @@ module Sapwood
 
     class << self
       def all
-        request_url = Sapwood::Utils.request_url('properties')
-        response = RestClient.get(request_url, Sapwood::Utils.get_header)
+        request_url = Utils.request_url('properties')
+        response = RestClient.get(request_url, Utils.get_header)
         JSON.parse(response.body).map { |attrs| Property.new(attrs) }
       end
 
@@ -19,7 +19,7 @@ module Sapwood
       end
 
       def create(attributes = {})
-        Sapwood::Property.new(attributes).save
+        Property.new(attributes).save
       end
     end
 
@@ -75,9 +75,9 @@ module Sapwood
     end
 
     def request(request_type, request_path)
-      request_url = Sapwood::Utils.request_url(request_path)
-      response = RestClient.send(request_type, request_url, post_data, Sapwood::Utils.post_header)
-      Sapwood::Property.new(JSON.parse(response.body))
+      request_url = Utils.request_url(request_path)
+      response = RestClient.send(request_type, request_url, post_data, Utils.post_header)
+      Property.new(JSON.parse(response.body))
     end
 
   end
