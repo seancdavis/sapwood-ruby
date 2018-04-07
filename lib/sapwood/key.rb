@@ -1,22 +1,24 @@
 module Sapwood
   class Key
 
+    include Inspector
+
     class << self
       def all
         request_url = Utils.request_url('keys', true)
-        response = RestClient.get(request_url, Utils.get_header)
+        response = RestClient.get(request_url, Utils.auth_header)
         JSON.parse(response.body).map { |attrs| Key.new(attrs) }
       end
 
       def find(id)
         request_url = Utils.request_url("keys/#{id}", true)
-        response = RestClient.get(request_url, Utils.get_header)
+        response = RestClient.get(request_url, Utils.auth_header)
         Key.new(JSON.parse(response.body))
       end
 
       def create
         request_url = Utils.request_url('keys', true)
-        response = RestClient.post(request_url, {}, Utils.post_header)
+        response = RestClient.post(request_url, {}, Utils.auth_header)
         Key.new(JSON.parse(response.body))
       end
     end
@@ -30,7 +32,7 @@ module Sapwood
 
     def destroy
       request_url = Utils.request_url("keys/#{id}", true)
-      response = RestClient.delete(request_url, Utils.get_header)
+      response = RestClient.delete(request_url, Utils.auth_header)
       Key.new(JSON.parse(response.body))
       true
     end

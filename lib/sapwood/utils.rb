@@ -11,13 +11,9 @@ module Sapwood
         "#{Sapwood.configuration.api_url.chomp('/')}/#{prefix}#{path}#{params}"
       end
 
-      def get_header
+      def auth_header
         return { 'Authorization' => config.token } if config.token.present?
         return { 'API-Key' => token } if config.key.present?
-      end
-
-      def post_header
-        get_header.merge(content_type: :json, accept: :json)
       end
 
       private

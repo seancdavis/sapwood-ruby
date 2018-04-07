@@ -10,6 +10,8 @@ Sapwood.configure do |config|
   config.token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE1MjMxOTEzODR9.iUg2dJpVvjaUHxBRDW0W7Osj4NO1-H4BF69lq8Ln_nM'
 end
 
+Sapwood::Property.create(name: 'My Property').activate!
+
 # You can add fixtures and/or initialization code here to make experimenting
 # with your gem easier. You can also use a different console, if you like.
 

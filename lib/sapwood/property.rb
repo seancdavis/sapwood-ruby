@@ -1,10 +1,12 @@
 module Sapwood
   class Property
 
+    include Inspector
+
     class << self
       def all
         request_url = Utils.request_url('properties')
-        response = RestClient.get(request_url, Utils.get_header)
+        response = RestClient.get(request_url, Utils.auth_header)
         JSON.parse(response.body).map { |attrs| Property.new(attrs) }
       end
 
@@ -76,7 +78,7 @@ module Sapwood
 
     def request(request_type, request_path)
       request_url = Utils.request_url(request_path)
-      response = RestClient.send(request_type, request_url, post_data, Utils.post_header)
+      response = RestClient.send(request_type, request_url, post_data, Utils.auth_header)
       Property.new(JSON.parse(response.body))
     end
 
