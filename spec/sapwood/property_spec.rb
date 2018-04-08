@@ -1,107 +1,168 @@
-# require 'spec_helper'
+require 'spec_helper'
 
-# RSpec.describe Sapwood::User do
+RSpec.describe Sapwood::Property do
 
-#   let(:user) do
-#     Sapwood::Authentication.get_token(
-#       api_url: ENV['SAPWOOD_API_URL'],
-#       email: ENV['SAPWOOD_API_USER_EMAIL'],
-#       password: ENV['SAPWOOD_API_PASSWORD']
-#     )
-#   end
+  let(:authenticate_user!) do
+    Sapwood.authenticate(ENV['SAPWOOD_API_USER_EMAIL'], ENV['SAPWOOD_API_PASSWORD'])
+  end
 
-#   let(:property_name) { Faker::Lorem.words(rand(2..5)).join(' ').titleize }
-#   let(:property) { user.create_property(name: property_name) }
+  let(:authenticate_admin!) do
+    Sapwood.authenticate(ENV['SAPWOOD_API_ADMIN_EMAIL'], ENV['SAPWOOD_API_PASSWORD'])
+  end
 
-#   # # ---------------------------------------- | New
+  let(:name) { Faker::Lorem.words(rand(2..5)).join(' ').titleize }
 
-#   describe '#new' do
-#     it 'can be instantiated with the correct options and attributes' do
-#       options = { api_url: ENV['SAPWOOD_API_URL'], master_key: 'abc123' }
-#       attrs = { name: 'Test Test', id: 123 }
-#       property = Sapwood::Property.new(options, attrs)
-#       expect(property.api_url).to eq(ENV['SAPWOOD_API_URL'])
-#       expect(property.master_key).to eq('abc123')
-#       expect(property.name).to eq('Test Test')
-#       expect(property.id).to eq(123)
-#     end
-#   end
+  # ---------------------------------------- | Create Property
 
-#   # ---------------------------------------- | Create Key
+  describe 'self#create' do
+    it 'will not create a property without a name' do
+      authenticate_admin!
+      expect { Sapwood::Property.create(name: nil) }.to raise_error(RestClient::BadRequest)
+    end
+    it 'will not create a property without a token' do
+      expect { Sapwood::Property.create(name: name) }.to raise_error(RestClient::Unauthorized)
+    end
+    it 'will not create a property without a valid token' do
+      authenticate_user!
+      expect { Sapwood::Property.create(name: name) }.to raise_error(RestClient::Unauthorized)
+    end
+    it 'will create a property with a valid token and name' do
+      authenticate_admin!
+      property = Sapwood::Property.create(name: name)
+      expect(property.id).to_not eq(nil)
+      expect(property.name).to eq(name)
+    end
+  end
 
-#   describe '#create_key' do
-#     it 'will create and return a key' do
-#       key = property.create_key
-#       expect(key.value.starts_with?("p#{property.id}_")).to eq(true)
-#     end
-#     it 'will not create a key without a key' do
-#       property.master_key = 'abc123'
-#       expect { property.create_key(master: true) }.to raise_error(RestClient::Unauthorized)
-#     end
-#   end
+  # ---------------------------------------- | Get Properties
 
-#   # ---------------------------------------- | Get Keys
+  describe 'self#all' do
+    it 'returns an array of property objects' do
+      authenticate_admin!
+      properties = Sapwood::Property.all
+      expect(properties.class).to eq(Array)
 
-#   describe '#get_keys' do
-#     it 'returns an array of property objects' do
-#       keys = property.get_keys
-#       expect(keys.class).to eq(Array)
+      property = properties.first
+      expect(property.class).to eq(Sapwood::Property)
+      expect(property.id).to_not eq(nil)
+      expect(property.name.present?).to eq(true)
+    end
+    it 'requires a valid token' do
+      Sapwood.configuration.token = 'abc123'
+      expect { Sapwood::Property.all }.to raise_error(RestClient::Unauthorized)
+      authenticate_user!
+      expect(Sapwood::Property.all.class).to eq(Array)
+    end
+  end
 
-#       key = keys.first
-#       expect(key.class).to eq(Sapwood::Key)
-#       expect(key.value.starts_with?("p#{property.id}_")).to eq(true)
-#       expect(key.id).to_not eq(nil)
-#     end
-#     it 'requires a valid master key' do
-#       property.master_key = 'abc123'
-#       expect { property.get_keys }.to raise_error(RestClient::Unauthorized)
-#     end
-#   end
+  describe 'self#where' do
+    before(:each) { authenticate_admin! }
+    it 'will filter a list of properties by id' do
+      id = Sapwood::Property.all.first.id
+      properties = Sapwood::Property.where(id: id)
+      expect(properties.size).to eq(1)
+      expect(properties.first.id).to eq(id)
+    end
+    it 'will filter a list of properties by name' do
+      name = Sapwood::Property.all.first.name
+      properties = Sapwood::Property.where(name: name)
+      expect(properties.size).to eq(1)
+      expect(properties.first.name).to eq(name)
+    end
+  end
 
-#   # ---------------------------------------- | Get Key
+  describe 'self#find_by' do
+    before(:each) { authenticate_admin! }
+    it 'will return the first matching instance from #where' do
+      name = Sapwood::Property.all.first.name
+      property = Sapwood::Property.find_by(name: name)
+      expect(property.name).to eq(name)
+    end
+  end
 
-#   describe '#get_key' do
-#     let(:keys) { property.get_keys }
-#     it 'returns a key object' do
-#       key = property.get_key(id: keys.first.id)
-#       expect(key.class).to eq(Sapwood::Key)
-#       expect(key.value.starts_with?("p#{property.id}_")).to eq(true)
-#       expect(key.id).to_not eq(nil)
-#     end
-#     it 'requires a valid token' do
-#       property.master_key = 'abc123'
-#       expect { property.get_key(id: keys.first.id) }
-#         .to raise_error(RestClient::Unauthorized)
-#     end
-#     it 'requires an id' do
-#       expect { property.get_key }.to raise_error(ArgumentError)
-#     end
-#     it 'requires a valid id' do
-#       expect { property.get_key(id: 0) }.to raise_error(RestClient::NotFound)
-#     end
-#   end
+  # ---------------------------------------- | Instance Methods
 
-#   # ---------------------------------------- | Delete Key
+  describe '#initialize' do
+    before(:each) { authenticate_admin! }
+    it 'converts "_at" integer attributes to times' do
+      time = Time.now.utc.to_i
+      property = Sapwood::Property.new(created_at: time)
+      expect(property.created_at).to eq(Time.at(time))
+    end
+    it 'does not convert "_at" non-integers to times' do
+      time = Time.now.utc
+      property = Sapwood::Property.new(created_at: time)
+      expect(property.created_at).to eq(time)
+    end
+    it 'sets an instance variable for all attributes' do
+      property = Sapwood::Property.new(name: 'Hello World')
+      expect(property.instance_variable_get("@name")).to eq('Hello World')
+    end
+  end
 
-#   describe '#delete_key' do
-#     let(:keys) { property.get_keys }
-#     let(:key) { property.create_key }
-#     before(:each) { key }
-#     it 'deletes the key' do
-#       response = property.delete_key(id: key.id)
-#       expect(response).to eq(true)
-#       expect { property.get_key(id: key.id) }.to raise_error(RestClient::NotFound)
-#     end
-#     it 'requires a valid token' do
-#       property.master_key = 'abc123'
-#       expect { property.delete_key(id: key.id) }.to raise_error(RestClient::Unauthorized)
-#     end
-#     it 'requires an id' do
-#       expect { property.delete_key }.to raise_error(ArgumentError)
-#     end
-#     it 'requires a valid id' do
-#       expect { property.delete_key(id: 0) }.to raise_error(RestClient::NotFound)
-#     end
-#   end
+  describe '#save' do
+    before(:each) { authenticate_admin! }
+    it 'calls create for new properties' do
+      property = Sapwood::Property.new(name: name)
+      expect(property).to receive(:create)
+      property.save
+    end
+    it 'calls update for existing properties' do
+      property = Sapwood::Property.all.first
+      expect(property).to receive(:update)
+      property.save
+    end
+  end
 
-# end
+  describe '#create' do
+    before(:each) { authenticate_admin! }
+    it 'creates a new property and returns that property' do
+      property = Sapwood::Property.create(name: name)
+      expect(property.id).to_not eq(nil)
+      expect(property.name).to eq(name)
+    end
+  end
+
+  describe '#update' do
+    before(:each) { authenticate_admin! }
+    it 'updates an existing property' do
+      property = Sapwood::Property.all.first
+      property = property.update(name: name)
+      expect(property.id).to_not eq(nil)
+      expect(property.name).to eq(name)
+    end
+  end
+
+  describe '#assign_attributes' do
+    before(:each) { authenticate_admin! }
+    it 'will bulk assign attributes and their instance variables (getters)' do
+      time = Time.now.utc.to_i
+      property = Sapwood::Property.all.first
+      property.assign_attributes(name: name, created_at: time)
+      expect(property.name).to eq(name)
+      expect(property.attributes[:name]).to eq(name)
+      expect(property.created_at).to eq(Time.at(time))
+      expect(property.attributes[:created_at]).to eq(Time.at(time))
+    end
+  end
+
+  describe '#name=(value)' do
+    before(:each) { authenticate_admin! }
+    it 'writes the name attribute and updates attributes hash' do
+      property = Sapwood::Property.all.first
+      expect(property).to receive(:assign_attributes).with(name: name)
+      property.name = name
+    end
+  end
+
+  describe '#activate!' do
+    before(:each) { authenticate_admin! }
+    it 'sets the config property_id to the current property\'s id' do
+      property = Sapwood::Property.all.first
+      expect(Sapwood.configuration.property_id).to eq(nil)
+      property.activate!
+      expect(Sapwood.configuration.property_id).to eq(property.id)
+    end
+  end
+
+end
