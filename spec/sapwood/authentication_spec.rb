@@ -19,6 +19,7 @@ RSpec.describe Sapwood do
     end
 
     it 'stores the token in config' do
+      response
       expect(Sapwood.configuration.token).to eq(response)
     end
   end

@@ -18,6 +18,9 @@ RSpec.configure do |config|
   config.before(:each) do
     Sapwood.configure do |conf|
       conf.api_url = ENV['SAPWOOD_API_URL']
+      conf.key = nil
+      conf.property_id = nil
+      conf.token = nil
     end
   end
 end
