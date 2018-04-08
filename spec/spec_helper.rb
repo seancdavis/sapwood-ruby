@@ -14,4 +14,10 @@ RSpec.configure do |config|
   config.expect_with :rspec do |c|
     c.syntax = :expect
   end
+
+  config.before(:each) do
+    Sapwood.configure do |conf|
+      conf.api_url = ENV['SAPWOOD_API_URL']
+    end
+  end
 end
