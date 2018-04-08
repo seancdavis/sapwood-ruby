@@ -80,13 +80,8 @@ module Sapwood
         if name.to_s.ends_with?('_at') && value.present?
           @attributes[name.to_sym] = Time.at(value)
         end
-        define_singleton_method(name) do
-          attributes[name]
-        end
-        next if %w{id created_at updated_at}.include?(name.to_s)
-        define_singleton_method("#{name}=") do |value|
-          @attributes[name] = value
-        end
+        define_singleton_method(name) { attributes[name] }
+        define_singleton_method("#{name}=") { |value| @attributes[name] = value }
       end
     end
 

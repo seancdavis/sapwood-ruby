@@ -30,6 +30,12 @@ module Sapwood
       process_attributes!
     end
 
+    def activate!
+      Sapwood.configuration.token = nil
+      Sapwood.configuration.key = value
+      self
+    end
+
     def destroy
       request_url = Utils.request_url("keys/#{id}", true)
       response = RestClient.delete(request_url, Utils.auth_header)

@@ -55,7 +55,7 @@ RSpec.describe Sapwood::Key do
 
   # ---------------------------------------- | Instance Methods
 
-  describe 'initialize' do
+  describe '#initialize' do
     it 'converts "_at" integer attributes to times' do
       time = Time.now.utc.to_i
       key = Sapwood::Key.new(created_at: time)
@@ -72,7 +72,17 @@ RSpec.describe Sapwood::Key do
     end
   end
 
-  describe 'destroy' do
+  describe '#activate!' do
+    it 'will set key and unset token' do
+      key = Sapwood::Key.create
+      expect(Sapwood.configuration.token).to_not eq(nil)
+      key.activate!
+      expect(Sapwood.configuration.token).to eq(nil)
+      expect(Sapwood.configuration.key).to eq(key.value)
+    end
+  end
+
+  describe '#destroy' do
     it 'will remove a key from a property' do
       key = Sapwood::Key.create
       value = key.value
