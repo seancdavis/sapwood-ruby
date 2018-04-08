@@ -2,105 +2,86 @@ require 'spec_helper'
 
 RSpec.describe Sapwood::Key do
 
-  let(:authenticate_admin!) do
+  let(:property) { @property }
+
+  let(:value) { SecureRandom.hex }
+
+  before(:each) do
     Sapwood.authenticate(ENV['SAPWOOD_API_ADMIN_EMAIL'], ENV['SAPWOOD_API_PASSWORD'])
+    @property ||= Sapwood::Property.all.first
+    Sapwood::Property.create(name: Faker::Lorem.words(4).join(' ')) if @property.blank?
+    @property.activate!
   end
 
-  let(:property) { Sapwood::Property.all.first }
+  # ---------------------------------------- | Create
 
-  before(:all) do
-    Sapwood::Property.create(name: Faker::Lorem.words(4).join(' ')) if property.blank?
+  describe 'self#create' do
+    it 'will create a key and return that key' do
+      key = Sapwood::Key.create
+      expect(key.class).to eq(Sapwood::Key)
+      expect(key.value).to_not eq(nil)
+      expect(key.id).to_not eq(nil)
+    end
+    it 'will not create a key when property is not set' do
+      Sapwood.configuration.property_id = nil
+      expect { Sapwood::Key.create }.to raise_error(ArgumentError)
+    end
+    it 'will not create a key without a token' do
+      Sapwood.configuration.token = nil
+      expect { Sapwood::Key.create }.to raise_error(RestClient::Unauthorized)
+    end
   end
 
-#   # # ---------------------------------------- | New
+  # ---------------------------------------- | All
 
-#   describe '#new' do
-#     it 'can be instantiated with the correct options and attributes' do
-#       options = { api_url: ENV['SAPWOOD_API_URL'], master_key: 'abc123' }
-#       attrs = { name: 'Test Test', id: 123 }
-#       property = Sapwood::Property.new(options, attrs)
-#       expect(property.api_url).to eq(ENV['SAPWOOD_API_URL'])
-#       expect(property.master_key).to eq('abc123')
-#       expect(property.name).to eq('Test Test')
-#       expect(property.id).to eq(123)
-#     end
-#   end
+  describe 'self#all' do
+    it 'will return an array of keys' do
+      keys = Sapwood::Key.all
+      expect(keys.class).to eq(Array)
+      expect(keys.collect(&:class).uniq).to eq([Sapwood::Key])
+    end
+  end
 
-  # ---------------------------------------- | Create Key
+  # ---------------------------------------- | Find
 
-  # describe '#create_key' do
-  #   it 'will create and return a key' do
-  #     key = property.create_key
-  #     expect(key.value.starts_with?("p#{property.id}_")).to eq(true)
-  #   end
-  #   it 'will not create a key without a key' do
-  #     property.master_key = 'abc123'
-  #     expect { property.create_key(master: true) }.to raise_error(RestClient::Unauthorized)
-  #   end
-  # end
+  describe 'self#find' do
+    it 'will find a single key and return that key' do
+      keys = Sapwood::Key.all
+      key = Sapwood::Key.find(keys.first.id)
+      expect(key.id).to eq(keys.first.id)
+      expect(key.value).to eq(keys.first.value)
+    end
+  end
 
-#   # ---------------------------------------- | Get Keys
+  # ---------------------------------------- | Instance Methods
 
-#   describe '#get_keys' do
-#     it 'returns an array of property objects' do
-#       keys = property.get_keys
-#       expect(keys.class).to eq(Array)
+  describe 'initialize' do
+    it 'converts "_at" integer attributes to times' do
+      time = Time.now.utc.to_i
+      key = Sapwood::Key.new(created_at: time)
+      expect(key.created_at).to eq(Time.at(time))
+    end
+    it 'does not convert "_at" non-integers to times' do
+      time = Time.now.utc
+      key = Sapwood::Key.new(created_at: time)
+      expect(key.created_at).to eq(time)
+    end
+    it 'sets an instance variable for all attributes' do
+      key = Sapwood::Key.new(value: value)
+      expect(key.instance_variable_get("@value")).to eq(value)
+    end
+  end
 
-#       key = keys.first
-#       expect(key.class).to eq(Sapwood::Key)
-#       expect(key.value.starts_with?("p#{property.id}_")).to eq(true)
-#       expect(key.id).to_not eq(nil)
-#     end
-#     it 'requires a valid master key' do
-#       property.master_key = 'abc123'
-#       expect { property.get_keys }.to raise_error(RestClient::Unauthorized)
-#     end
-#   end
-
-#   # ---------------------------------------- | Get Key
-
-#   describe '#get_key' do
-#     let(:keys) { property.get_keys }
-#     it 'returns a key object' do
-#       key = property.get_key(id: keys.first.id)
-#       expect(key.class).to eq(Sapwood::Key)
-#       expect(key.value.starts_with?("p#{property.id}_")).to eq(true)
-#       expect(key.id).to_not eq(nil)
-#     end
-#     it 'requires a valid token' do
-#       property.master_key = 'abc123'
-#       expect { property.get_key(id: keys.first.id) }
-#         .to raise_error(RestClient::Unauthorized)
-#     end
-#     it 'requires an id' do
-#       expect { property.get_key }.to raise_error(ArgumentError)
-#     end
-#     it 'requires a valid id' do
-#       expect { property.get_key(id: 0) }.to raise_error(RestClient::NotFound)
-#     end
-#   end
-
-#   # ---------------------------------------- | Delete Key
-
-#   describe '#delete_key' do
-#     let(:keys) { property.get_keys }
-#     let(:key) { property.create_key }
-#     before(:each) { key }
-#     it 'deletes the key' do
-#       response = property.delete_key(id: key.id)
-#       expect(response).to eq(true)
-#       expect { property.get_key(id: key.id) }.to raise_error(RestClient::NotFound)
-#     end
-#     it 'requires a valid token' do
-#       property.master_key = 'abc123'
-#       expect { property.delete_key(id: key.id) }.to raise_error(RestClient::Unauthorized)
-#     end
-#     it 'requires an id' do
-#       expect { property.delete_key }.to raise_error(ArgumentError)
-#     end
-#     it 'requires a valid id' do
-#       expect { property.delete_key(id: 0) }.to raise_error(RestClient::NotFound)
-#     end
-#   end
+  describe 'destroy' do
+    it 'will remove a key from a property' do
+      key = Sapwood::Key.create
+      value = key.value
+      keys = Sapwood::Key.all
+      expect(keys.collect(&:value)).to include(value)
+      key.destroy
+      keys = Sapwood::Key.all
+      expect(keys.collect(&:value)).to_not include(value)
+    end
+  end
 
 end
