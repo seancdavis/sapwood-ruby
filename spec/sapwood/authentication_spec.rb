@@ -2,11 +2,11 @@ require 'spec_helper'
 
 RSpec.describe Sapwood do
 
-  let(:response) do
-    Sapwood.authenticate(ENV['SAPWOOD_API_USER_EMAIL'], ENV['SAPWOOD_API_PASSWORD'])
-  end
+  describe '#authenticate' do
+    let(:response) do
+      Sapwood.authenticate(ENV['SAPWOOD_API_USER_EMAIL'], ENV['SAPWOOD_API_PASSWORD'])
+    end
 
-  describe '#get_token' do
     it 'will raise 401 without correct credentials' do
       expect {
         Sapwood.authenticate(nil, ENV['SAPWOOD_API_USER_EMAIL'])

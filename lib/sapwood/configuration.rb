@@ -17,11 +17,8 @@ module Sapwood
                   :property_id,
                   :token
 
-    def initialize
-      @api_url = 'https://api.sapwood.org'
-      @key = nil
-      @property_id = nil
-      @token = nil
+    def api_url
+      @api_url ||= 'https://api.sapwood.org'
     end
   end
 end
