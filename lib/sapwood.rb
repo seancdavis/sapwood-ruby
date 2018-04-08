@@ -12,6 +12,7 @@ require 'sapwood/utils'
 require 'sapwood/configuration'
 require 'sapwood/authentication'
 require 'sapwood/property'
+require 'sapwood/user'
 require 'sapwood/key'
 require 'sapwood/item'
 

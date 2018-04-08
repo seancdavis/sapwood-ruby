@@ -1,17 +1,16 @@
-# require 'spec_helper'
+require 'spec_helper'
 
-# RSpec.describe Sapwood::User do
+RSpec.describe Sapwood::Key do
 
-#   let(:user) do
-#     Sapwood::Authentication.get_token(
-#       api_url: ENV['SAPWOOD_API_URL'],
-#       email: ENV['SAPWOOD_API_USER_EMAIL'],
-#       password: ENV['SAPWOOD_API_PASSWORD']
-#     )
-#   end
+  let(:authenticate_admin!) do
+    Sapwood.authenticate(ENV['SAPWOOD_API_ADMIN_EMAIL'], ENV['SAPWOOD_API_PASSWORD'])
+  end
 
-#   let(:property_name) { Faker::Lorem.words(rand(2..5)).join(' ').titleize }
-#   let(:property) { user.create_property(name: property_name) }
+  let(:property) { Sapwood::Property.all.first }
+
+  before(:all) do
+    Sapwood::Property.create(name: Faker::Lorem.words(4).join(' ')) if property.blank?
+  end
 
 #   # # ---------------------------------------- | New
 
@@ -27,18 +26,18 @@
 #     end
 #   end
 
-#   # ---------------------------------------- | Create Key
+  # ---------------------------------------- | Create Key
 
-#   describe '#create_key' do
-#     it 'will create and return a key' do
-#       key = property.create_key
-#       expect(key.value.starts_with?("p#{property.id}_")).to eq(true)
-#     end
-#     it 'will not create a key without a key' do
-#       property.master_key = 'abc123'
-#       expect { property.create_key(master: true) }.to raise_error(RestClient::Unauthorized)
-#     end
-#   end
+  # describe '#create_key' do
+  #   it 'will create and return a key' do
+  #     key = property.create_key
+  #     expect(key.value.starts_with?("p#{property.id}_")).to eq(true)
+  #   end
+  #   it 'will not create a key without a key' do
+  #     property.master_key = 'abc123'
+  #     expect { property.create_key(master: true) }.to raise_error(RestClient::Unauthorized)
+  #   end
+  # end
 
 #   # ---------------------------------------- | Get Keys
 
@@ -104,4 +103,4 @@
 #     end
 #   end
 
-# end
+end
