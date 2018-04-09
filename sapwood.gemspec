@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'sapwood/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = 'Sapwood'
+  spec.name          = 'sapwood'
   spec.version       = Sapwood::VERSION
   spec.authors       = ['Sean C Davis']
   spec.email         = ['scdavis41@gmail.com']
