@@ -30,13 +30,13 @@ Gem::Specification.new do |spec|
   spec.require_paths = ['lib']
 
   spec.add_development_dependency 'bundler', '~> 1.16'
-  spec.add_development_dependency 'faker'
-  spec.add_development_dependency 'guard-rspec'
+  spec.add_development_dependency 'faker', '~> 1.8', '>= 1.8.0'
+  spec.add_development_dependency 'guard-rspec', '~> 4.7', '>= 4.7.0'
   spec.add_development_dependency 'rake', '~> 10.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
-  spec.add_development_dependency 'dotenv-rails'
-  spec.add_development_dependency 'pry'
+  spec.add_development_dependency 'dotenv-rails', '~> 2.2', '>= 2.2.0'
+  spec.add_development_dependency 'pry', '~> 0.9', '>= 0.9.0'
 
-  spec.add_dependency 'rest-client'
-  spec.add_dependency 'activesupport'
+  spec.add_dependency 'rest-client', '~> 2.0', '>= 2.0.0'
+  spec.add_dependency 'activesupport', '~> 5.1', '>= 5.1.0'
 end
