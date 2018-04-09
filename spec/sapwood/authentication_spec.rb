@@ -13,14 +13,16 @@ RSpec.describe Sapwood do
       }.to raise_error(RestClient::Unauthorized)
     end
 
-    it 'returns the token' do
-      expect(response.class).to eq(String)
-      expect(response.size).to eq(105)
+    it 'returns the token, expires_at, user_id' do
+      expect(response['token'].class).to eq(String)
+      expect(response['token'].size).to eq(105)
+      expect(response['user_id'].class).to eq(Fixnum)
+      expect(response['expires_at'].class).to eq(Fixnum)
     end
 
     it 'stores the token in config' do
       response
-      expect(Sapwood.configuration.token).to eq(response)
+      expect(Sapwood.configuration.token).to eq(response['token'])
     end
   end
 
