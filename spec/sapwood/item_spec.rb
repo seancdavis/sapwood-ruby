@@ -76,7 +76,8 @@ RSpec.describe Sapwood::Item do
       items = Sapwood::Item.query
       expect(items.class).to eq(Array)
       expect(items.first.class).to eq(Sapwood::Item)
-      @items.each { |item| expect(items.collect(&:name)).to include(item.name) }
+      item_names = items.collect { |i| i.attributes[:name] }.reject(&:blank?)
+      @items.each { |item| expect(item_names).to include(item.name) }
     end
     it 'accepts filter parameters' do
       item = @items.first
@@ -88,7 +89,7 @@ RSpec.describe Sapwood::Item do
       all_items = Sapwood::Item.all
       items = Sapwood::Item.query(order_by: :name, order_in: :desc)
       expect(items.size > 0).to eq(true)
-      exp_array = all_items.sort_by(&:name).reverse.collect { |i| i.meta[:id] }
+      exp_array = all_items.sort_by { |i| i.attributes[:name].to_s }.reverse.collect { |i| i.meta[:id] }
       expect(items.collect { |i| i.meta[:id] }).to match_array(exp_array)
     end
   end
@@ -145,6 +146,7 @@ RSpec.describe Sapwood::Item do
   # ---------------------------------------- | Data Conversion
 
   describe '#post_data' do
+    before(:each) { authenticate_user! }
     it 'converts "_at" attributes to utc integers before save' do
       item = Sapwood::Item.new({ publish_at: (date = DateTime.current) })
       data = JSON.parse(item.send(:post_data)).deep_symbolize_keys
@@ -158,6 +160,7 @@ RSpec.describe Sapwood::Item do
   end
 
   describe '#init_attributes!' do
+    before(:each) { authenticate_user! }
     it 'presents "_at" attributes as datetime objects on the item' do
       item = Sapwood::Item.new({ publish_at: (date = DateTime.current.utc.to_i) })
       expect(item.publish_at).to eq(Time.at(date))
@@ -167,6 +170,8 @@ RSpec.describe Sapwood::Item do
   # ---------------------------------------- | Database Transactions
 
   context '[db transactions]' do
+    before(:each) { authenticate_user! }
+
     let(:item) { Sapwood::Item.create(params) }
 
     describe '#update' do
@@ -189,6 +194,7 @@ RSpec.describe Sapwood::Item do
     end
 
     describe '#save' do
+      before(:each) { authenticate_user! }
       it 'will save an item back to the API' do
         id = item.meta[:id]
         old_age = item.age
@@ -201,11 +207,73 @@ RSpec.describe Sapwood::Item do
     end
 
     describe '#destroy' do
+      before(:each) { authenticate_user! }
       it 'will delete the item' do
         response = item.destroy
         expect(response).to eq(true)
         expect { Sapwood::Item.find(item.meta[:id]) }.to raise_error(RestClient::NotFound)
       end
+    end
+  end
+
+  # ---------------------------------------- | Associations
+
+  describe '[associations]' do
+    before(:each) do
+      authenticate_user!
+      @item_01 = Sapwood::Item.create(name: 'My First Tag')
+      @item_02 = Sapwood::Item.create(name: 'My Second Tag')
+    end
+    it 'converts "_id" fields to associated objects on init' do
+      item = Sapwood::Item.new(tag_id: @item_01.meta[:id])
+      expect(item.tag_id).to eq(@item_01.meta[:id])
+      expect(item.tag.class).to eq(Sapwood::Item)
+      expect(item.tag.meta[:id]).to eq(@item_01.meta[:id])
+    end
+    it 'converts "_ids" fields to associated objects on init' do
+      ids = [@item_01.meta[:id], @item_02.meta[:id]]
+      item = Sapwood::Item.new(tag_ids: ids)
+      expect(item.tag_ids).to eq(ids)
+      expect(item.tags.first.class).to eq(Sapwood::Item)
+      expect(item.tags.collect { |t| t.meta[:id] }).to match_array(ids)
+    end
+    it 'converts "_id" fields from API to items and makes available through "_id" attribute' do
+      item = Sapwood::Item.create(tag_id: @item_01.meta[:id])
+      expect(item.tag_id).to eq(@item_01.meta[:id])
+      expect(item.tag.class).to eq(Sapwood::Item)
+      expect(item.tag.meta[:id]).to eq(@item_01.meta[:id])
+    end
+    it 'converts "_ids" fields from API to items and makes available through "_ids" attribute' do
+      ids = [@item_01.meta[:id], @item_02.meta[:id]]
+      item = Sapwood::Item.new(tag_ids: ids)
+      expect(item.tag_ids).to eq(ids)
+      expect(item.tags.first.class).to eq(Sapwood::Item)
+      expect(item.tags.collect { |t| t.meta[:id] }).to match_array(ids)
+    end
+    it 'converts a directly associated object to "_id" field' do
+      item = Sapwood::Item.new(tag: @item_01)
+      expect(item.tag_id).to eq(@item_01.meta[:id])
+      expect(item.tag.class).to eq(Sapwood::Item)
+      expect(item.tag.meta[:id]).to eq(@item_01.meta[:id])
+    end
+    it 'converts directly associated objects to "_ids" field' do
+      item = Sapwood::Item.new(tags: [@item_01, @item_02])
+      ids = [@item_01.meta[:id], @item_02.meta[:id]]
+      expect(item.tag_ids).to eq(ids)
+      expect(item.tags.first.class).to eq(Sapwood::Item)
+      expect(item.tags.collect { |t| t.meta[:id] }).to match_array(ids)
+    end
+    it 'does not submit associated fields -- only its "_id" counterparts' do
+      item = Sapwood::Item.new(tag: @item_01)
+      data = JSON.parse(item.send(:post_data)).deep_symbolize_keys
+      expect(data.keys).to include(:tag_id)
+      expect(data.keys).to_not include(:tag)
+    end
+    it 'does not submit associated fields -- only its "_ids" counterparts' do
+      item = Sapwood::Item.new(tags: [@item_01, @item_02])
+      data = JSON.parse(item.send(:post_data)).deep_symbolize_keys
+      expect(data.keys).to include(:tag_ids)
+      expect(data.keys).to_not include(:tags)
     end
   end
 

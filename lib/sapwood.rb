@@ -4,6 +4,7 @@ require 'json'
 
 require 'active_support'
 require 'active_support/core_ext/hash'
+require 'active_support/core_ext/object'
 require 'active_support/core_ext/string'
 
 require 'sapwood/version'

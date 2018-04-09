@@ -7,7 +7,7 @@ require 'dotenv/load'
 
 Sapwood.configure do |config|
   config.api_url = ENV['SAPWOOD_API_URL']
-  config.token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE1MjMxOTEzODR9.iUg2dJpVvjaUHxBRDW0W7Osj4NO1-H4BF69lq8Ln_nM'
+  config.token = 'eyJhbGciOiJIUzI1NiJ9.eyJ1c2VyX2lkIjoyLCJleHAiOjE1MjMzNjA5NzB9.ovZvjt-GGEE9djQ3zW9Q-6_mlhYVMafh4DPBffve4FA'
 end
 
 Sapwood::Property.create(name: 'My Property').activate!
