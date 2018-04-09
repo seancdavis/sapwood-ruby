@@ -11,7 +11,7 @@ Gem::Specification.new do |spec|
 
   spec.summary       = %q{Ruby bindings for Sapwood's API}
   spec.description   = %q{A simple SDK for working with Sapwood's API.}
-  spec.homepage      = 'https://github.com/seancdavis/sapwood-api-ruby'
+  spec.homepage      = 'https://github.com/seancdavis/sapwood-ruby'
   spec.license       = 'MIT'
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
