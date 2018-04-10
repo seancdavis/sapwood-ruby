@@ -1,8 +1,6 @@
 module Sapwood
   class Item
 
-    include Inspector
-
     class << self
       def all
         query
