@@ -19,7 +19,9 @@ module Sapwood
       end
 
       def create(attributes = {})
-        Item.new(attributes).save
+        item = Item.new(attributes)
+        item.save
+        item
       end
     end
 
@@ -138,6 +140,7 @@ module Sapwood
       response = RestClient.send(request_type, request_url, post_data, Utils.auth_header)
       @attributes = JSON.parse(response.body).deep_symbolize_keys
       init_attributes!
+      true
     end
 
   end
