@@ -136,7 +136,8 @@ module Sapwood
     def request(request_type, request_path)
       request_url = Utils.request_url(request_path, true)
       response = RestClient.send(request_type, request_url, post_data, Utils.auth_header)
-      Item.new(JSON.parse(response.body))
+      @attributes = JSON.parse(response.body).deep_symbolize_keys
+      init_attributes!
     end
 
   end
