@@ -33,7 +33,7 @@ module Sapwood
     end
 
     def assign_attributes(attrs)
-      attrs.deep_symbolize_keys.each { |name, value| @attributes[name] = value }
+      attrs.to_h.deep_symbolize_keys.each { |name, value| @attributes[name] = value }
       init_attributes!
     end
 
