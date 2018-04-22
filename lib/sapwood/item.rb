@@ -13,6 +13,7 @@ module Sapwood
       end
 
       def find(id)
+        return nil if id.nil?
         request_url = Utils.request_url("items/#{id}", true)
         response = RestClient.get(request_url, Utils.auth_header)
         Item.new(JSON.parse(response.body))
@@ -75,23 +76,24 @@ module Sapwood
 
     private
 
-    def init_attributes!
+    def init_attributes!(options = {})
+      item_class = options[:item_class] || Sapwood::Item
       attributes.clone.each do |name, value|
         @attributes[name.to_sym] = Time.at(value) if name.to_s.ends_with?('_at') && value.present?
 
         if name.to_s.ends_with?('_id')
           assoc_name = name.to_s.chomp('_id').to_sym
-          if attributes[assoc_name].blank? || attributes[assoc_name].meta[:id].to_i != value.to_i
-            @attributes[assoc_name] = Sapwood::Item.find(value)
+          if attributes[assoc_name].blank? || (value.present? && attributes[assoc_name].meta[:id].to_i != value.to_i)
+            @attributes[assoc_name] = item_class.find(value)
           end
         end
 
         if value.is_a?(Hash) && value[:"[meta]"].present?
-          value = Sapwood::Item.new(value)
+          value = item_class.new(value)
           @attributes[name.to_sym] = value
         end
 
-        if value.is_a?(Sapwood::Item) && ! attributes.keys.include?(:"#{name}_id")
+        if value.is_a?(Sapwood::Item) && attributes[:"#{name}_id"].blank?
           @attributes[:"#{name}_id"] = value.meta[:id]
         end
 
@@ -99,12 +101,12 @@ module Sapwood
           assoc_name = name.to_s.chomp('_ids').pluralize.to_sym
           current_attr = attributes[assoc_name]
           if current_attr.blank? || current_attr.collect { |i| i.meta[:id].to_i }.sort != value.map(&:to_i).sort
-            @attributes[assoc_name] = value.map { |id| Sapwood::Item.find(id) }
+            @attributes[assoc_name] = value.map { |id| item_class.find(id) }
           end
         end
 
         if value.is_a?(Array) && value.first.is_a?(Hash) && value.first[:"[meta]"].present?
-          value = value.map { |id| Sapwood::Item.new(id.to_i) }
+          value = value.map { |id| item_class.new(id.to_i) }
           @attributes[name.to_sym] = value
         end
 
